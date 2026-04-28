@@ -80,9 +80,14 @@ alias claude=\"run_ai_project \\\"claude\\\" \\\"claude\\\"\"\n\
 alias opencode=\"run_ai_project \\\"opencode\\\" \\\"opencode\\\"\"\n\
 alias gemini=\"run_ai_project \\\"gemini\\\" \\\"gemini\\\"\"\n" >> ~/.zshrc
 
-# 10. Script de Inicialização Mestre (Com Injeção de Chave SSH)
+# 10. Script de Inicialização Mestre (Versão Blindada)
 USER root
 RUN printf "#!/bin/bash\n\
+# --- GARANTIA DE DIRETÓRIOS --- \n\
+# Esta linha abaixo resolve o erro 'is not a directory'\n\
+mkdir -p /var/lib/tailscale\n\
+mkdir -p /home/jorge/.ssh\n\
+\n\
 # 1. Persistência de SSH Fingerprint\n\
 if [ ! -f \"/var/lib/tailscale/ssh_host_ed25519_key\" ]; then\n\
     echo 'Gerando chaves SSH iniciais...'\n\
@@ -94,9 +99,8 @@ else\n\
     chmod 600 /etc/ssh/ssh_host_*_key\n\
 fi\n\
 \n\
-# 2. Injeção da Chave Pública (Vinda da variável de ambiente no .env)\n\
+# 2. Injeção da Chave Pública\n\
 if [ ! -z \"\$SSH_PUBLIC_KEY\" ]; then\n\
-    mkdir -p /home/jorge/.ssh\n\
     echo \"\$SSH_PUBLIC_KEY\" > /home/jorge/.ssh/authorized_keys\n\
     chown -R jorge:jorge /home/jorge/.ssh\n\
     chmod 700 /home/jorge/.ssh\n\
