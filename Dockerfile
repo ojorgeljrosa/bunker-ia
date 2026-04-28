@@ -80,10 +80,10 @@ alias claude=\"run_ai_project \\\"claude\\\" \\\"claude\\\"\"\n\
 alias opencode=\"run_ai_project \\\"opencode\\\" \\\"opencode\\\"\"\n\
 alias gemini=\"run_ai_project \\\"gemini\\\" \\\"gemini\\\"\"\n" >> ~/.zshrc
 
-# 10. Script de Inicialização Mestre (Versão Elite Consolidada)
+# 10. Script de Inicialização Mestre (Versão com Visual de Terminal)
 USER root
 RUN printf "#!/bin/bash\n\
-# 1. Ajuste de Permissões Críticas (StrictModes e Ownership)\n\
+# 1. Ajuste de Permissões Críticas\n\
 mkdir -p /var/lib/tailscale /home/jorge/.ssh\n\
 chown -R jorge:jorge /home/jorge\n\
 chmod 755 /home/jorge\n\
@@ -100,24 +100,29 @@ else\n\
     chmod 600 /etc/ssh/ssh_host_*_key\n\
 fi\n\
 \n\
-# 3. Injeção da Chave Pública e Integração Git\n\
+# 3. Injeção da Chave Pública e Configurações Visuais\n\
 if [ ! -z \"\$SSH_PUBLIC_KEY\" ]; then\n\
     echo \"\$SSH_PUBLIC_KEY\" > /home/jorge/.ssh/authorized_keys\n\
     chown jorge:jorge /home/jorge/.ssh/authorized_keys\n\
     chmod 600 /home/jorge/.ssh/authorized_keys\n\
 fi\n\
 \n\
-# Deixa o Git pronto para usar o login do GitHub CLI automaticamente\n\
-sudo -u jorge git config --global credential.helper \"!gh auth git-credential\"\n\
+# --- MELHORIA VISUAL DO TERMINAL ---\n\
+# Define o Shell padrão como Zsh para o Jorge\n\
+chsh -s /usr/bin/zsh jorge\n\
+# Cria um prompt colorido que mostra: usuário@container:~/pasta/atual\n\
+echo 'PROMPT=\"%%F{cyan}%%n%%f@%%F{green}%%m%%f:%%F{yellow}%%~%%f$ \"' >> /home/jorge/.zshrc\n\
+chown jorge:jorge /home/jorge/.zshrc\n\
 \n\
-# 4. Compatibilidade RSA (Ubuntu 22.04+)\n\
+# 4. Integração Git e Compatibilidade SSH\n\
+sudo -u jorge git config --global credential.helper \"!gh auth git-credential\"\n\
 grep -qX \"PubkeyAcceptedAlgorithms +ssh-rsa\" /etc/ssh/sshd_config || echo \"PubkeyAcceptedAlgorithms +ssh-rsa\" >> /etc/ssh/sshd_config\n\
 \n\
 service ssh start\n\
 tailscaled --tun=userspace-networking --state=/var/lib/tailscale/tailscaled.state > /dev/null 2>&1 &\n\
 echo '------------------------------------'\n\
 echo '  Bunker IA 100%% operacional, Jorge! '\n\
-echo '  Acesso SSH e Git: Habilitados      '\n\
+echo '  Terminal configurado e colorido    '\n\
 echo '------------------------------------'\n\
 tail -f /dev/null\n" > /start.sh
 
