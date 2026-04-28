@@ -80,18 +80,16 @@ alias claude=\"run_ai_project \\\"claude\\\" \\\"claude\\\"\"\n\
 alias opencode=\"run_ai_project \\\"opencode\\\" \\\"opencode\\\"\"\n\
 alias gemini=\"run_ai_project \\\"gemini\\\" \\\"gemini\\\"\"\n" >> ~/.zshrc
 
-# 10. Script de Inicialização Mestre (Versão Blindada Definitiva)
+# 10. Script de Inicialização Mestre (Versão Elite Consolidada)
 USER root
 RUN printf "#!/bin/bash\n\
-# 1. Garantia de Diretórios e Permissões Raiz (Resolve o erro do StrictModes)\n\
-mkdir -p /var/lib/tailscale\n\
-mkdir -p /home/jorge/.ssh\n\
-chown jorge:jorge /home/jorge\n\
+# 1. Ajuste de Permissões Críticas (StrictModes e Ownership)\n\
+mkdir -p /var/lib/tailscale /home/jorge/.ssh\n\
+chown -R jorge:jorge /home/jorge\n\
 chmod 755 /home/jorge\n\
-chown jorge:jorge /home/jorge/.ssh\n\
 chmod 700 /home/jorge/.ssh\n\
 \n\
-# 2. Persistência de SSH Fingerprint (Mantido igual, funcionando perfeito)\n\
+# 2. Persistência de SSH Fingerprint\n\
 if [ ! -f \"/var/lib/tailscale/ssh_host_ed25519_key\" ]; then\n\
     echo 'Gerando chaves SSH iniciais...'\n\
     ssh-keygen -A\n\
@@ -102,22 +100,24 @@ else\n\
     chmod 600 /etc/ssh/ssh_host_*_key\n\
 fi\n\
 \n\
-# 3. Injeção da Chave Pública\n\
+# 3. Injeção da Chave Pública e Integração Git\n\
 if [ ! -z \"\$SSH_PUBLIC_KEY\" ]; then\n\
     echo \"\$SSH_PUBLIC_KEY\" > /home/jorge/.ssh/authorized_keys\n\
     chown jorge:jorge /home/jorge/.ssh/authorized_keys\n\
     chmod 600 /home/jorge/.ssh/authorized_keys\n\
-    echo 'Chave SSH configurada com sucesso!'\n\
 fi\n\
 \n\
-# 4. Compatibilidade com chaves RSA antigas (Para aceitar sua chave do Mac)\n\
+# Deixa o Git pronto para usar o login do GitHub CLI automaticamente\n\
+sudo -u jorge git config --global credential.helper \"!gh auth git-credential\"\n\
+\n\
+# 4. Compatibilidade RSA (Ubuntu 22.04+)\n\
 grep -qX \"PubkeyAcceptedAlgorithms +ssh-rsa\" /etc/ssh/sshd_config || echo \"PubkeyAcceptedAlgorithms +ssh-rsa\" >> /etc/ssh/sshd_config\n\
 \n\
 service ssh start\n\
 tailscaled --tun=userspace-networking --state=/var/lib/tailscale/tailscaled.state > /dev/null 2>&1 &\n\
 echo '------------------------------------'\n\
 echo '  Bunker IA 100%% operacional, Jorge! '\n\
-echo '  Acesso via Chave SSH: Habilitado   '\n\
+echo '  Acesso SSH e Git: Habilitados      '\n\
 echo '------------------------------------'\n\
 tail -f /dev/null\n" > /start.sh
 
