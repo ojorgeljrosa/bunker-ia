@@ -1,0 +1,11 @@
+# Segredos
+.env
+
+# Sistema e IDEs
+.DS_Store
+.idea/
+.vscode/
+
+# Logs e Dados temporários
+*.log
+tailscaled.state

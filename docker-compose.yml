@@ -1,0 +1,20 @@
+services:
+  bunker-ia:
+    build: .
+    container_name: bunker-jorge
+    restart: always
+    env_file:
+      - .env  # Esta linha faz a ponte entre o seu arquivo de segredos e o container
+    ports:
+      - "2222:22" # Porta 2222 para não conflitar com o SSH da máquina real
+    volumes:
+      - jorge-home:/home/jorge
+      - tailscale-data:/var/lib/tailscale
+    cap_add:
+      - NET_ADMIN # Necessário para o Tailscale
+    devices:
+      - /dev/net/tun:/dev/net/tun # Necessário para o Tailscale
+
+volumes:
+  jorge-home:
+  tailscale-data:
