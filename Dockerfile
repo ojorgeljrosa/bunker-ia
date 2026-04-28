@@ -80,15 +80,18 @@ alias claude=\"run_ai_project \\\"claude\\\" \\\"claude\\\"\"\n\
 alias opencode=\"run_ai_project \\\"opencode\\\" \\\"opencode\\\"\"\n\
 alias gemini=\"run_ai_project \\\"gemini\\\" \\\"gemini\\\"\"\n" >> ~/.zshrc
 
-# 10. Script de Inicialização Mestre (Versão Blindada)
+# 10. Script de Inicialização Mestre (Versão Blindada Definitiva)
 USER root
 RUN printf "#!/bin/bash\n\
-# --- GARANTIA DE DIRETÓRIOS --- \n\
-# Esta linha abaixo resolve o erro 'is not a directory'\n\
+# 1. Garantia de Diretórios e Permissões Raiz (Resolve o erro do StrictModes)\n\
 mkdir -p /var/lib/tailscale\n\
 mkdir -p /home/jorge/.ssh\n\
+chown jorge:jorge /home/jorge\n\
+chmod 755 /home/jorge\n\
+chown jorge:jorge /home/jorge/.ssh\n\
+chmod 700 /home/jorge/.ssh\n\
 \n\
-# 1. Persistência de SSH Fingerprint\n\
+# 2. Persistência de SSH Fingerprint (Mantido igual, funcionando perfeito)\n\
 if [ ! -f \"/var/lib/tailscale/ssh_host_ed25519_key\" ]; then\n\
     echo 'Gerando chaves SSH iniciais...'\n\
     ssh-keygen -A\n\
@@ -99,14 +102,16 @@ else\n\
     chmod 600 /etc/ssh/ssh_host_*_key\n\
 fi\n\
 \n\
-# 2. Injeção da Chave Pública\n\
+# 3. Injeção da Chave Pública\n\
 if [ ! -z \"\$SSH_PUBLIC_KEY\" ]; then\n\
     echo \"\$SSH_PUBLIC_KEY\" > /home/jorge/.ssh/authorized_keys\n\
-    chown -R jorge:jorge /home/jorge/.ssh\n\
-    chmod 700 /home/jorge/.ssh\n\
+    chown jorge:jorge /home/jorge/.ssh/authorized_keys\n\
     chmod 600 /home/jorge/.ssh/authorized_keys\n\
     echo 'Chave SSH configurada com sucesso!'\n\
 fi\n\
+\n\
+# 4. Compatibilidade com chaves RSA antigas (Para aceitar sua chave do Mac)\n\
+grep -qX \"PubkeyAcceptedAlgorithms +ssh-rsa\" /etc/ssh/sshd_config || echo \"PubkeyAcceptedAlgorithms +ssh-rsa\" >> /etc/ssh/sshd_config\n\
 \n\
 service ssh start\n\
 tailscaled --tun=userspace-networking --state=/var/lib/tailscale/tailscaled.state > /dev/null 2>&1 &\n\
