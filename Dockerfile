@@ -80,7 +80,23 @@ alias claude=\"run_ai_project \\\"claude\\\" \\\"claude\\\"\"\n\
 alias opencode=\"run_ai_project \\\"opencode\\\" \\\"opencode\\\"\"\n\
 alias gemini=\"run_ai_project \\\"gemini\\\" \\\"gemini\\\"\"\n" >> ~/.zshrc
 
-# 10. Script de Inicialização Mestre (Versão com Visual de Terminal)
+# 10. Instalação de Serviços Web (Filebrowser, code-server, Hermes, Paperclip)
+# Filebrowser
+RUN curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash
+
+# code-server
+RUN curl -fsSL https://code-server.dev/install.sh | sh
+
+# Hermes Agent (via npm)
+RUN npm install -g hermes-agent
+
+# Paperclip (via npm)
+RUN npm install -g paperclip-ai
+
+# 11. Configuração de Portas e Inicialização de Serviços
+EXPOSE 22 3100 3101 8081 8082 9119
+
+# 12. Script de Inicialização Mestre (Versão com Visual de Terminal e Serviços Web)
 USER root
 RUN printf "#!/bin/bash\n\
 # 1. Ajuste de Permissões Críticas\n\
@@ -118,14 +134,20 @@ chown jorge:jorge /home/jorge/.zshrc\n\
 sudo -u jorge git config --global credential.helper \"!gh auth git-credential\"\n\
 grep -qX \"PubkeyAcceptedAlgorithms +ssh-rsa\" /etc/ssh/sshd_config || echo \"PubkeyAcceptedAlgorithms +ssh-rsa\" >> /etc/ssh/sshd_config\n\
 \n\
+# 5. Inicialização de Serviços em Background\n\
+echo 'Iniciando serviços web...'\n\
+sudo -u jorge nohup filebrowser -a 0.0.0.0 -p 8081 -r /home/jorge > /tmp/filebrowser.log 2>&1 &\n\
+sudo -u jorge nohup code-server --bind-addr 0.0.0.0:8082 > /tmp/code-server.log 2>&1 &\n\
+sudo -u jorge nohup hermes dashboard --host 0.0.0.0 --insecure --no-open > /tmp/hermes-dashboard.log 2>&1 &\n\
+sudo -u jorge nohup paperclip-ai start > /tmp/paperclip.log 2>&1 &\n\
+\n\
 service ssh start\n\
 tailscaled --tun=userspace-networking --state=/var/lib/tailscale/tailscaled.state > /dev/null 2>&1 &\n\
 echo '------------------------------------'\n\
 echo '  Bunker IA 100%% operacional, Jorge! '\n\
-echo '  Terminal configurado e colorido    '\n\
+echo '  Serviços Web: 8081, 8082, 9119      '\n\
 echo '------------------------------------'\n\
 tail -f /dev/null\n" > /start.sh
 
 RUN chmod +x /start.sh
-EXPOSE 22
 CMD ["/bin/bash", "/start.sh"]

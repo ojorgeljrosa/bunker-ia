@@ -6,10 +6,16 @@ services:
     env_file:
       - .env  # Esta linha faz a ponte entre o seu arquivo de segredos e o container
     ports:
-      - "2222:22" # Porta 2222 para não conflitar com o SSH da máquina real
+      - "2222:22"       # SSH
+      - "3100:3100"     # Paperclip / OpenCode Web
+      - "3101:3101"     # Paperclip Gateway
+      - "8081:8081"     # Filebrowser
+      - "8082:8082"     # code-server
+      - "9119:9119"     # Hermes Dashboard
     volumes:
       - jorge-home:/home/jorge
       - tailscale-data:/var/lib/tailscale
+      - paperclip-data:/home/jorge/.paperclip # Persistência do Paperclip e Postgres
     cap_add:
       - NET_ADMIN # Necessário para o Tailscale
     devices:
@@ -18,3 +24,4 @@ services:
 volumes:
   jorge-home:
   tailscale-data:
+  paperclip-data:

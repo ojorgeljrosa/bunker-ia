@@ -1,12 +1,14 @@
 # 🛡️ Bunker IA - Agência de Marketing
 
-Este é um ambiente de desenvolvimento isolado e persistente, projetado para operar agentes de IA (Claude Code, Gemini, OpenCode) com segurança e alta performance.
+Este é um ambiente de desenvolvimento isolado e persistente, projetado para operar agentes de IA (Claude Code, Gemini, OpenCode, Hermes) com segurança e alta performance.
 
 ## 🚀 Tecnologias Inclusas
 - **OS:** Ubuntu 22.04 LTS (Zsh como Shell padrão)
 - **Rede:** Tailscale (Acesso remoto seguro)
-- **Linguagens:** Python 3.10, Node.js 20
-- **Ferramentas:** Claude Code, GitHub CLI, Gemini CLI, NVM, Docker
+- **Linguagens:** Python 3.10/3.11, Node.js 20
+- **Agentes de IA:** Claude Code, Gemini CLI, OpenCode, Hermes Agent
+- **Banco de Dados:** PostgreSQL (Embutido via Paperclip)
+- **Interface Web:** code-server (VS Code Web), Filebrowser, Hermes Dashboard
 
 ---
 
@@ -18,6 +20,7 @@ Este é um ambiente de desenvolvimento isolado e persistente, projetado para ope
    - `SSH_PUBLIC_KEY`: Cole sua chave pública (`ssh-rsa ...`) para acesso via Termius.
    - `ANTHROPIC_API_KEY`: Para usar o Claude Code.
    - `GEMINI_API_KEY`: Para usar o Gemini CLI.
+   - `NVIDIA_API_KEY`: Para usar o Hermes Agent (ou outro provider).
 
 ---
 
@@ -58,6 +61,20 @@ sudo passwd jorge
 
 ---
 
+## 🌐 Serviços Web e Dashboards
+
+Todos os serviços abaixo são acessíveis via Tailscale no IP do seu container (ex: `http://100.x.x.x:PORTA`).
+
+| Serviço | Porta | Descrição |
+| :--- | :--- | :--- |
+| **Filebrowser** | `8081` | Gerenciador visual de arquivos. Login padrão: `admin` / `admin` |
+| **code-server** | `8082` | VS Code completo no navegador. Senha em `~/.config/code-server/config.yaml` |
+| **Hermes Dashboard** | `9119` | Painel de controle do agente Hermes (API Keys, Sessões, Kanban) |
+| **Paperclip** | `3100/3101` | Sistema de coordenação de agentes e tarefas |
+| **OpenCode** | `3100` | Interface web do OpenCode (integrada ao Paperclip) |
+
+---
+
 ## 📂 Organização de Arquivos
 - `~/repositorios`: Pasta sugerida para clonar seus projetos da agência.
 - `~/.zshrc`: Configurações visuais e aliases do terminal (Persistente).
@@ -66,4 +83,4 @@ sudo passwd jorge
 ## 🛡️ Segurança
 - O acesso SSH root está desativado. Use sempre o usuário `jorge`.
 - A porta 22 está exposta, mas protegida pela sua chave SSH e pela camada do Tailscale.
-```
+- **Importante:** Nunca exponha as portas 8081, 8082 ou 9119 para a internet pública. Use apenas via Tailscale.
